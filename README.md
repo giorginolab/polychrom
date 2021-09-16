@@ -20,6 +20,14 @@ https://github.com/mirnylab/polychrom/tree/master/examples/loopExtrusion . It is
 Simplest example simulation that does nothing, which is a good starting point for novel simulations or polymer physics projects.  
 https://github.com/mirnylab/polychrom/blob/master/examples/example/example.py
 
+
+## Installation
+
+First clone the repository. Then `cd` in the corresponding directory and use `pip install -e .`. This
+should install the library in the current environment in /editable/ mode (i.e., the installed library
+will reflect changes made if you edit or update the code).
+
+
 ### Transitioning from openmm-polymer ("openmmlib")
 Compared to openmm-polymer, it has a new storage format described here: https://github.com/mirnylab/polychrom/blob/master/examples/storage_formats/hdf5_reporter.ipynb
 For backwards compatibility with analysis routines, we have legacy reporter that saves into openmmlib format 
