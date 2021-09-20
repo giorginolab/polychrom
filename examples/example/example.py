@@ -13,28 +13,35 @@ import openmm
 import os
 from polychrom.hdf5_format import HDF5Reporter
 
-N=10000
+#N=10000
+N=782
 
-reporter = HDF5Reporter(folder="trajectory", max_data_length=5, overwrite=True)
+reporter = HDF5Reporter(folder="trajectory", max_data_length=5, overwrite=True) # check: hdf5_format.py
+
 sim = simulation.Simulation(
-    platform="CUDA", 
-    integrator="variableLangevin",
-    error_tol=0.003,
+    platform="CPU", 
+    integrator="verlet",
+    #integrator="variableLangevin", #se metto questo devo mettere errot_tol e collision rate al posto di timestep
+    #error_tol=0.003,
     GPU="0",
-    collision_rate=0.03,
+    timestep=0.01,
+    collision_rate=0.03, 
     N=N,
     save_decimals=2,
     PBCbox=False,
     reporters=[reporter],
+    #temperatura di default a 300K
 )
 
-polymer = starting_conformations.grow_cubic(10000, 100)
+polymer = starting_conformations.grow_cubic(N, 100, method="linear") # This function grows a ring or linear polymer 
+                                                        # on a cubic lattice 
+                                                        # in the cubic box of size boxSize. 
 
 sim.set_data(polymer, center=True)  # loads a polymer, puts a center of mass at zero
 
 #sim.add_force(forces.spherical_confinement(sim, density=0.85, k=1))
 
-sim.add_force(
+sim.add_force( #anche add_forceandtorque
     forcekits.polymer_chains(
         sim,
         chains=[(0, None, False)],
@@ -44,7 +51,7 @@ sim.add_force(
         bond_force_func=forces.harmonic_bonds,
         bond_force_kwargs={
             "bondLength": 1.0,
-            "bondWiggleDistance": 0.05,  # Bond distance will fluctuate +- 0.05 on average
+            "bondWiggleDistance": 0.1,  # Bond distance will fluctuate +- 0.1 on average
         },
         angle_force_func=forces.angle_force,
         angle_force_kwargs={
@@ -52,18 +59,25 @@ sim.add_force(
             # K is more or less arbitrary, k=4 corresponds to presistence length of 4,
             # k=1.5 is recommended to make polymer realistically flexible; k=8 is very stiff
         },
-        nonbonded_force_func=forces.polynomial_repulsive,
-        nonbonded_force_kwargs={
-            "trunc": 3.0,  # this will let chains cross sometimes
+        #nonbonded_force_func=forces.polynomial_repulsive, #inserire grosberg
+        #nonbonded_force_kwargs={
+        #    "trunc": 10.0,  # this will let chains cross sometimes
             #'trunc':10.0, # this will resolve chain crossings and will not let chain cross anymore
+        #},
+        grosberg_force_func=forces.grosberg_repulsive_force,
+        grosberg_force_kwargs={
+            "trunc": None, "radiusMult": 1.0,
         },
         except_bonds=True,
     )
 )
 
 
-for _ in range(10):  # Do 10 blocks
+for _ in range(10):  # Do 10 blocks. meglio 1000 blocchi da uno step ciascuno
     sim.do_block(100)  # Of 100 timesteps each. Data is saved automatically. 
 sim.print_stats()  # In the end, print very simple statistics
 
 reporter.dump_data()  # always need to run in the end to dump the block cache to the disk
+                      # check: hdf5_format.py
+
+#to convert to ascii: h5dump -o file_name.asci -y -w 400 file_name.h5

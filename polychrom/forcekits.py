@@ -28,8 +28,10 @@ def polymer_chains(
     bond_force_kwargs={"bondWiggleDistance": 0.05, "bondLength": 1.0},
     angle_force_func=forces.angle_force,
     angle_force_kwargs={"k": 0.05},
-    nonbonded_force_func=forces.polynomial_repulsive,
-    nonbonded_force_kwargs={"trunc": 3.0, "radiusMult": 1.0},
+#    nonbonded_force_func=forces.polynomial_repulsive,
+#    nonbonded_force_kwargs={"trunc": 3.0, "radiusMult": 1.0},
+    grosberg_force_func=forces.grosberg_repulsive_force,
+    grosberg_force_kwargs={"trunc": None, "radiusMult": 1.0},
     except_bonds=True,
     extra_bonds=None,
     extra_triplets=None,
@@ -106,8 +108,10 @@ def polymer_chains(
     if angle_force_func is not None:
         force_list.append(angle_force_func(sim_object, triplets, **angle_force_kwargs))
 
-    if nonbonded_force_func is not None:
-        nb_force = nonbonded_force_func(sim_object, **nonbonded_force_kwargs)
+    #if nonbonded_force_func is not None:
+    if grosberg_force_func is not None:
+      #  nb_force = nonbonded_force_func(sim_object, **nonbonded_force_kwargs)
+        nb_force = grosberg_force_func(sim_object, **grosberg_force_kwargs)
 
         if except_bonds:
             exc = list(set([tuple(i) for i in np.sort(np.array(bonds), axis=1)]))

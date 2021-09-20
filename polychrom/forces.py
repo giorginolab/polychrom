@@ -984,6 +984,9 @@ def pull_force(sim_object, particles, force_vecs, name="Pull"):
 
     return force
 
+#def polynomial_repulsive(
+#    sim_object, trunc=3.0, radiusMult=1.0, name="polynomial_repulsive"
+#):
 
 def grosberg_polymer_bonds(
     sim_object, bonds, k=30, name="grosberg_polymer", override_checks=False
@@ -1077,6 +1080,7 @@ def grosberg_angle(
         force.addAngle(p1, p2, p3, [k[triplet_idx]])
 
     return force
+
 
 
 def grosberg_repulsive_force(

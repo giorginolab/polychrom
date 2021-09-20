@@ -365,6 +365,7 @@ class Simulation(object):
         "Returns an Nx3 array of positions"
         return np.asarray(self.data / simtk.unit.nanometer, dtype=np.float32)
 
+
     def get_scaled_data(self):
         """Returns data, scaled back to PBC box """
         if not self.PBC:
@@ -757,6 +758,9 @@ class Simulation(object):
             )
         result.update(save_extras)
         if save:
+            np.savetxt("coords.csv", newcoords, delimiter=",")
+            #np.savetxt("coords.xyz", newcoords, delimiter=",")
+            #formato xyz
             for reporter in self.reporters:
                 reporter.report("data", result)
 
