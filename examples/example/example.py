@@ -12,31 +12,36 @@ from polychrom import simulation, starting_conformations, forces, forcekits
 import openmm
 import os
 from polychrom.hdf5_format import HDF5Reporter
+import numpy as np
 
 #N=10000
-N=782
+N=100
 
-reporter = HDF5Reporter(folder="trajectory", max_data_length=5, overwrite=True) # check: hdf5_format.py
+#np.random.seed(10)
+#reporter = HDF5Reporter(folder="trajectory", max_data_length=5, overwrite=True) # check: hdf5_format.py
 
 sim = simulation.Simulation(
     platform="CPU", 
+    #integrator="verlet",
     integrator="verlet",
     #integrator="variableLangevin", #se metto questo devo mettere errot_tol e collision rate al posto di timestep
     #error_tol=0.003,
     GPU="0",
     timestep=0.01,
+    #timestep=0.01, #used for verlet
     collision_rate=0.03, 
     N=N,
-    save_decimals=2,
+    save_decimals=5,
     PBCbox=False,
-    reporters=[reporter],
+    #reporters=[reporter],
     #temperatura di default a 300K
 )
 
-polymer = starting_conformations.grow_cubic(N, 100, method="linear") # This function grows a ring or linear polymer 
+#polymer = starting_conformations.grow_cubic(N, 2, method="linear") # This function grows a ring or linear polymer 
                                                         # on a cubic lattice 
                                                         # in the cubic box of size boxSize. 
 
+polymer = starting_conformations.create_random_walk(1.1, N)
 sim.set_data(polymer, center=True)  # loads a polymer, puts a center of mass at zero
 
 #sim.add_force(forces.spherical_confinement(sim, density=0.85, k=1))
@@ -53,9 +58,9 @@ sim.add_force( #anche add_forceandtorque
             "bondLength": 1.0,
             "bondWiggleDistance": 0.1,  # Bond distance will fluctuate +- 0.1 on average
         },
-        angle_force_func=forces.angle_force,
+        angle_force_func=None,
         angle_force_kwargs={
-            "k": 1.5,
+            "k": 0.0,
             # K is more or less arbitrary, k=4 corresponds to presistence length of 4,
             # k=1.5 is recommended to make polymer realistically flexible; k=8 is very stiff
         },
@@ -71,13 +76,13 @@ sim.add_force( #anche add_forceandtorque
         except_bonds=True,
     )
 )
+sim.local_energy_minimization()
 
-
-for _ in range(10):  # Do 10 blocks. meglio 1000 blocchi da uno step ciascuno
+for _ in range(1000):  # Do 10 blocks. meglio 1000 blocchi da uno step ciascuno
     sim.do_block(100)  # Of 100 timesteps each. Data is saved automatically. 
 sim.print_stats()  # In the end, print very simple statistics
 
-reporter.dump_data()  # always need to run in the end to dump the block cache to the disk
+#reporter.dump_data()  # always need to run in the end to dump the block cache to the disk
                       # check: hdf5_format.py
 
 #to convert to ascii: h5dump -o file_name.asci -y -w 400 file_name.h5

@@ -324,6 +324,9 @@ def angle_force(
         False by default.
     """
 
+    if k==0:
+        return
+
     # check for repeated triplets
     if not override_checks:
         _check_angle_bonds(triplets)

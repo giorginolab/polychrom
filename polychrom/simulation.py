@@ -86,6 +86,8 @@ import time
 import tempfile
 import logging
 import warnings
+import csv
+
 
 
 from collections.abc import Iterable
@@ -222,7 +224,7 @@ class Simulation(object):
             "length_scale": 1.0,
             "mass": 100,
             "reporters": [],
-            "max_Ek": 10,
+            "max_Ek": 10000,
             "precision": "mixed",
             "save_decimals": 2,
             "verbose": False,
@@ -711,6 +713,15 @@ class Simulation(object):
         msg = "block %4s " % int(self.block)
         msg += "pos[1]=[%.1lf %.1lf %.1lf] " % tuple(newcoords[0])
 
+        with open('blocco.xyz', 'a', newline='') as file:
+            # writer = csv.writer(file, delimiter=' ')
+            file.write(str(self.N))
+            file.write('\n')
+            file.write('\n')
+            for i in range(self.N):
+                file.write(f"C { newcoords.item((i,0))} {newcoords.item((i,1))} {newcoords.item((i,2))}\n")
+            
+
         check_fail = False
         for check_function in check_functions:
             if not check_function(newcoords):
@@ -758,7 +769,7 @@ class Simulation(object):
             )
         result.update(save_extras)
         if save:
-            np.savetxt("coords.csv", newcoords, delimiter=",")
+            #np.savetxt("coords.csv", newcoords, delimiter=",")
             #np.savetxt("coords.xyz", newcoords, delimiter=",")
             #formato xyz
             for reporter in self.reporters:
