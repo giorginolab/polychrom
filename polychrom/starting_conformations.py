@@ -106,7 +106,7 @@ def create_random_walk(step_size, N):
     """
     Creates a freely joined chain of length N with step step_size 
     """
-    np.random.seed(10)
+    #np.random.seed(10)
     theta, u =  _random_points_sphere(N).T
     
     dx = step_size * np.sqrt(1.0 - u * u) * np.cos(theta)

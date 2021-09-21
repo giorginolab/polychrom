@@ -299,7 +299,8 @@ class Simulation(object):
                     kwargs["timestep"] * simtk.unit.femtosecond,
                 )
             elif self.integrator_type.lower() == "verlet":
-                self.integrator = openmm.VariableVerletIntegrator(
+                self.integrator = openmm.VerletIntegrator(
+                #self.integrator = openmm.VariableVerletIntegrator(    
                     kwargs["timestep"] * simtk.unit.femtosecond
                 )
             elif self.integrator_type.lower() == "variableverlet":
@@ -642,6 +643,7 @@ class Simulation(object):
         )
 
         openmm.LocalEnergyMinimizer.minimize(self.context, tolerance, maxIterations)
+        self.context.setVelocitiesToTemperature(0) #added
 
         self.state = self.context.getState(getPositions=True, getEnergy=True)
         eK = self.state.getKineticEnergy() / self.N / self.kT

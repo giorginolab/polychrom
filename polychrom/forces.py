@@ -1111,7 +1111,7 @@ def grosberg_repulsive_force(
  
 
     """
-    radius = sim_object.conlen * radiusMult
+    radius = sim_object.conlen * radiusMult #by default conlen=1 nanometer 
     nbCutOffDist = radius * 2.0 ** (1.0 / 6.0)
     if trunc is None:
         repul_energy = "4 * e * ((sigma/r)^12 - (sigma/r)^6) + e"
